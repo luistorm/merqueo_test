@@ -46,14 +46,6 @@ class ApiClient {
             val interceptor = HttpLoggingInterceptor()
             interceptor.level = HttpLoggingInterceptor.Level.BODY
             httpClient.addInterceptor(interceptor)
-            httpClient.addInterceptor { chain ->
-                val original = chain.request()
-                val requestBuilder = original.newBuilder()
-                    .addHeader("Accept", "application/json")
-                    .addHeader("Content-Type", "application/json")
-                val request = requestBuilder.build()
-                chain.proceed(request)
-            }
             okHttpClient = httpClient.build()
         }
 
