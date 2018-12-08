@@ -19,19 +19,21 @@ class ApiClient {
 
         fun getClient(): Retrofit? {
 
-            if (okHttpClient == null)
-                initOkHttp()
-
-            if (retrofit == null) {
-                val gson = GsonBuilder()
-                    .setLenient()
-                    .create()
-                retrofit = Retrofit.Builder()
-                    .baseUrl(BuildConfig.BASE_URL)
-                    .client(okHttpClient!!)
-                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                    .addConverterFactory(GsonConverterFactory.create(gson))
-                    .build()
+            when (okHttpClient) {
+                null -> initOkHttp()
+            }
+            when (retrofit) {
+                null -> {
+                    val gson = GsonBuilder()
+                        .setLenient()
+                        .create()
+                    retrofit = Retrofit.Builder()
+                        .baseUrl(BuildConfig.BASE_URL)
+                        .client(okHttpClient!!)
+                        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                        .addConverterFactory(GsonConverterFactory.create(gson))
+                        .build()
+                }
             }
             return retrofit
         }
@@ -41,22 +43,17 @@ class ApiClient {
                 .connectTimeout(REQUEST_TIMEOUT.toLong(), TimeUnit.SECONDS)
                 .readTimeout(REQUEST_TIMEOUT.toLong(), TimeUnit.SECONDS)
                 .writeTimeout(REQUEST_TIMEOUT.toLong(), TimeUnit.SECONDS)
-
             val interceptor = HttpLoggingInterceptor()
             interceptor.level = HttpLoggingInterceptor.Level.BODY
-
             httpClient.addInterceptor(interceptor)
-
             httpClient.addInterceptor { chain ->
                 val original = chain.request()
                 val requestBuilder = original.newBuilder()
                     .addHeader("Accept", "application/json")
                     .addHeader("Content-Type", "application/json")
-
                 val request = requestBuilder.build()
                 chain.proceed(request)
             }
-
             okHttpClient = httpClient.build()
         }
 
