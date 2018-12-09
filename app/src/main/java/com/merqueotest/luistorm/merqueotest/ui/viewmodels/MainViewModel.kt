@@ -20,8 +20,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val notifyPopularMoviesSubject: Subject<List<Movie>> = PublishSubject.create()
     private val realm = Realm.getDefaultInstance()
 
-    fun getPopularMovies(contex: Context) {
-        when(hasInternetConnection(contex)) {
+    fun getPopularMovies(context: Context) {
+        when(hasInternetConnection(context)) {
             true -> callPopularMoviesService()
             false -> notifyPopularMoviesSubject.onNext(getMoviesFromDatabase())
         }
@@ -40,7 +40,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun insertMoviesInDatabase(movies: List<Movie>) {
         movies.forEach {
             realm.beginTransaction()
-            realm.insert(it)
+            realm.insertOrUpdate(it)
             realm.commitTransaction()
         }
     }
