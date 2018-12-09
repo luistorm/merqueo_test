@@ -9,11 +9,13 @@ import android.view.ViewGroup
 import com.merqueotest.luistorm.merqueotest.BuildConfig
 import com.merqueotest.luistorm.merqueotest.R
 import com.squareup.picasso.Picasso
+import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.movie_item_view.view.*
 
 class MoviesAdapter(private var movies : List<Movie>) : RecyclerView.Adapter<MoviesAdapter.ViewHolder>() {
 
     private lateinit var context: Context
+    val movieSelectedSubject: PublishSubject<Movie> = PublishSubject.create()
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
@@ -35,5 +37,6 @@ class MoviesAdapter(private var movies : List<Movie>) : RecyclerView.Adapter<Mov
         viewHolder.itemView.movieVoteAverageTextView.text = movie.vote_average.toString()
         Picasso.get().load(BuildConfig.BASE_IMAGE_URL + movie.poster_path).into(viewHolder.itemView.moviePosterImageView)
         viewHolder.itemView.movieDescriptionTextView.text = movie.overview
+        viewHolder.itemView.movieItemContainer.setOnClickListener { movieSelectedSubject.onNext(movie) }
     }
 }
