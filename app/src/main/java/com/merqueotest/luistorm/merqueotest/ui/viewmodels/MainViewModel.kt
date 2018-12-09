@@ -11,29 +11,45 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import android.net.NetworkInfo
 import android.net.ConnectivityManager
-
+import io.realm.Realm
 
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val notifyPopularMoviesSubject: Subject<List<Movie>> = PublishSubject.create()
+    private val realm = Realm.getDefaultInstance()
+
+    fun getPopularMovies(contex: Context) {
+        when(hasInternetConnection(contex)) {
+            true -> callPopularMoviesService()
+            false -> notifyPopularMoviesSubject.onNext(getMoviesFromDatabase())
+        }
+    }
 
     @SuppressLint("CheckResult")
-    fun getPopularMovies() {
+    private fun callPopularMoviesService() {
         NetworkApis.moviesApi.getPopularMovies(BuildConfig.API_KEY)
             .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
             .subscribe({
+                insertMoviesInDatabase(it.results)
                 notifyPopularMoviesSubject.onNext(it.results)
             }, Throwable::printStackTrace)
     }
 
-    fun hasInternetConnection(context: Context) : Boolean {
+    private fun insertMoviesInDatabase(movies: List<Movie>) {
+        movies.forEach {
+            realm.beginTransaction()
+            realm.insert(it)
+            realm.commitTransaction()
+        }
+    }
+
+    private fun getMoviesFromDatabase() = realm.where(Movie::class.java).findAll().toList()
+
+    private fun hasInternetConnection(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
-        return connectivityManager!!.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).state == NetworkInfo.State.CONNECTED || connectivityManager.getNetworkInfo(
-            ConnectivityManager.TYPE_WIFI
-        ).state == NetworkInfo.State.CONNECTED
+        return connectivityManager!!.activeNetworkInfo != null && connectivityManager.activeNetworkInfo.isConnected
     }
 
 }

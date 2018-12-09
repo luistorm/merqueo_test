@@ -1,25 +1,30 @@
 package com.merqueotest.luistorm.merqueotest.ui.models
 
 import com.google.gson.annotations.SerializedName
+import io.realm.RealmObject
+import io.realm.annotations.PrimaryKey
+import io.realm.annotations.RealmClass
 
-class Movie {
+@RealmClass
+open class Movie : RealmObject() {
 
+    @PrimaryKey
     @SerializedName("id")
-    val id: Int = -1
+    var id: Int = -1
 
     @SerializedName("vote_average")
-    val vote_average: Double = -1.0
+    var vote_average: Double = -1.0
 
     @SerializedName("title")
-    val title: String = ""
+    var title: String = ""
 
     @SerializedName("poster_path")
-    val poster_path: String = ""
+    var poster_path: String = ""
 
     @SerializedName("backdrop_path")
-    val backdrop_path: String = ""
+    var backdrop_path: String = ""
 
     @SerializedName("overview")
-    val overview: String = ""
+    var overview: String = ""
 
 }

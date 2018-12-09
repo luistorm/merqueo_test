@@ -3,7 +3,6 @@ package com.merqueotest.luistorm.merqueotest.ui.activities
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.arch.lifecycle.ViewModelProviders
-import android.content.Context
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -13,11 +12,13 @@ import com.merqueotest.luistorm.merqueotest.BuildConfig
 import com.merqueotest.luistorm.merqueotest.R
 import com.merqueotest.luistorm.merqueotest.ui.models.Movie
 import com.merqueotest.luistorm.merqueotest.ui.models.MoviesAdapter
-import com.merqueotest.luistorm.merqueotest.ui.network.NetworkApis
 import com.merqueotest.luistorm.merqueotest.ui.viewmodels.MainViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
+
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Realm.init(this)
         mainViewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         setListeners()
         loadMoviesInfo()
@@ -34,7 +36,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadMoviesInfo() {
         showLoader()
-        mainViewModel.getPopularMovies()
+        mainViewModel.getPopularMovies(this)
     }
 
     @SuppressLint("CheckResult")
